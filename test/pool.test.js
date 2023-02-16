@@ -16,4 +16,37 @@ describe("POOL", ()=>{
     it("deploys a contract", ()=>{
         assert.ok(poolContract.options.address)
     })
+    it("allows user to enter pool", async()=>{
+        await poolContract.methods.enter().send({from: accounts[0], value: web3.utils.toWei("2","ether")})
+        let enteredUser= await poolContract.methods.getPlayers().call({from: accounts[1]})
+        assert.equal(accounts[0], enteredUser[0])
+    })
+    it("does'nt allow value less than 0.02 ether", async()=>{
+        try{
+            await poolContract.methods.enter().send({from: accounts[0], value: web3.utils.toWei("0.01","ether")}) 
+        }
+        catch(err){
+            assert(err)
+            return
+        }
+        assert(false)
+    })
+    it("doesn't allow non manager to pick a winner", async()=>{
+        try{
+            await poolContract.methods.enter().send({from: accounts[0], value: web3.utils.toWei("2","ether")})
+            await poolContract.methods.pickWinner().send({from: accounts[1]})
+        }
+        catch (err){
+            assert(err)
+            return
+        }
+        assert(false)
+    })
+    it("allows different user to enter and winner is picked", async()=>{
+        await poolContract.methods.enter().send({from: accounts[1], value: web3.utils.toWei("2","ether")})
+        const initialBalance= web3.eth.getBalance(accounts[0])
+        await poolContract.methods.pickWinner().send({from: accounts[1]})
+
+
+    })
 })
