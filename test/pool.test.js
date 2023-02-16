@@ -44,8 +44,10 @@ describe("POOL", ()=>{
     })
     it("allows different user to enter and winner is picked", async()=>{
         await poolContract.methods.enter().send({from: accounts[1], value: web3.utils.toWei("2","ether")})
-        const initialBalance= web3.eth.getBalance(accounts[0])
-        await poolContract.methods.pickWinner().send({from: accounts[1]})
+        const initialBalance= await web3.eth.getBalance(accounts[1])
+        await poolContract.methods.pickWinner().send({from: accounts[0]})
+        const newBalance= await web3.eth.getBalance(accounts[1])
+        assert(newBalance > initialBalance)
 
 
     })
